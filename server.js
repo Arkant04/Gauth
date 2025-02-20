@@ -43,6 +43,24 @@ app.get("/", (req, res) => {
   res.send(html);
 });
 
+app.get('/auth/github',
+  passport.authenticate('github', { scope: [ 'user:email' ] })
+);
+
+app.get('/auth/github/callback',
+    passport.authenticate('github', { failureRedirect: '/' }),
+    (req, res) => {
+        res.redirect('/profile');
+    }
+);
+
+app.get('/profile', (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.redirect('/');
+    }
+  res.send(`Hola ${req.user.username || req.user.displayName}`);
+});
+
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
 });
