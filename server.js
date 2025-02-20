@@ -54,11 +54,24 @@ app.get('/auth/github/callback',
     }
 );
 
-app.get('/profile', (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/');
+// Middleware de autenticación
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
     }
-  res.send(`Hola ${req.user.username || req.user.displayName}`);
+    res.redirect('/');
+}
+
+// Ruta con middleware
+app.get('/profile', ensureAuthenticated, (req, res) => {
+    res.send(`Hola ${req.user.username || req.user.displayName}`);
+});
+
+app.get('/logout', (req, res) => {
+    req.logout(done => {
+        console.log('Usuario deslogueado');
+    });
+    res.redirect('/');
 });
 
 app.listen(port, () => {
